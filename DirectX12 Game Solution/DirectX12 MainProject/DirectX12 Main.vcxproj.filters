@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Base">
+      <UniqueIdentifier>{47974e81-ff42-4d0c-8227-fa99f8c69fd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{29c1d6e3-875e-4d01-a01d-0974e170e5c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{d7d56ad3-60f4-40ad-b499-8133f5f75990}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Pmx">
+      <UniqueIdentifier>{2d0d251c-e7dc-4430-926b-d11da4378eac}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Base\d3dx12.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\pch.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\StepTimer.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\GameBase.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="MainScene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\dxtk.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneFactory.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\DXTKHelpers.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\PmxLoader.h">
+      <Filter>Base\Pmx</Filter>
+    </ClInclude>
+    <ClInclude Include="tool\VMDLoader.h">
+      <Filter>Base\Pmx</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Base\Main.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\pch.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\GameBase.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="MainScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="tool\PmxLoader.cpp">
+      <Filter>Base\Pmx</Filter>
+    </ClCompile>
+    <ClCompile Include="tool\VMDLoader.cpp">
+      <Filter>Base\Pmx</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\directx.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource\resource.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="Resource\settings.manifest">
+      <Filter>Resource</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Assets\Shaders\VS.hlsl" />
+  </ItemGroup>
+</Project>

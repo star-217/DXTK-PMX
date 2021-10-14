@@ -30,8 +30,5 @@ VSOUT BasicVS(
     vsout.normal = mul(transform, normal);
     vsout.uv = uv;
 
-    //vsout.color = materialEmissive;
-
-
     return vsout;
 }

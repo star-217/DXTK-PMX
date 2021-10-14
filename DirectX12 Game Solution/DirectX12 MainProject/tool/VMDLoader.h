@@ -34,7 +34,7 @@ struct VMDKeyFrame {
 
 
 
-class VMDLoader final{
+class VMDLoader{
 public:
 	VMDLoader();
 	virtual ~VMDLoader() { }

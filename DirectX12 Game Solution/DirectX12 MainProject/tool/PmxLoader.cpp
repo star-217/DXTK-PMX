@@ -94,7 +94,7 @@ void PmxLoader::SetCamera(DX12::CAMERA camera)
 	@brief	ポジション設定
 	@param	position ポジション
 */
-void PmxLoader::SetPosition(Vector3 position)
+void PmxLoader::SetPosition(Vector3 position = Vector3(0,0,0))
 {
 	m_position = Matrix::CreateTranslation(position);
 }
@@ -794,6 +794,7 @@ bool PmxLoader::getPMXStringUTF16(FILE* file, std::wstring& output)
 
 	output = std::wstring(wBuffer.data());
 	wchar_t chars[] = L"\\";
+
 	int i = output.find(chars);
 	if (i != -1)
 		output.replace(i, 1, L"/");

@@ -42,8 +42,8 @@ void MainScene::LoadAssets()
 
 	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
 	reimu.SetCamera(mainCamera);
-	reimu.SetPosition(SimpleMath::Vector3(0, 0, 0));
-	//back.PmxRead("Model/Stage_ST43/ST43.pmx");
+	back.PmxRead("Model/Stage_ST43/ST43.pmx");
+	back.SetCamera(mainCamera);
 	//data.boneMatrices.resize(data.bones.size());
 	//std::fill(data.boneMatrices.begin(), data.boneMatrices.end(), XMMatrixIdentity());
 	//data.motionData = vmdLoad.LoadVMD("Motion/IA_Conqueror_light_version.vmd");
@@ -130,7 +130,7 @@ void MainScene::Render()
 	DXTK->ClearRenderTarget(Colors::White);
 
 	reimu.Render();
-	//back.Render();
+	back.Render();
 
 	DXTK->ExecuteCommandList();
 }

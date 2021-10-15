@@ -190,6 +190,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneFactory.h" />
     <ClInclude Include="tool\PmxLoader.h" />
+    <ClInclude Include="tool\PmxStructList.h" />
     <ClInclude Include="tool\VMDLoader.h" />
   </ItemGroup>
   <ItemGroup>

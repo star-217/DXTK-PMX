@@ -38,10 +38,6 @@ public:
 
 private:
 
-	void  MatrixMultiplyChildren(PmxData::BoneNode* node, const XMMATRIX& matrix);
-	void  UpdateBoneMatrices(const float deltaTime);
-	float GetYFromXOnBezier(const float x, const XMFLOAT2& a, const XMFLOAT2& b, const uint8_t n);
-
 	float leftArmAngle;
 	float elapsedTime;
 	float motionFPS;
@@ -49,7 +45,7 @@ private:
 	PmxLoader reimu;
 	PmxLoader back;
 
-	VMDLoader vmdLoad;
+	//VMDLoader vmdLoad;
 
 	DX12::SPRITE chara;
 	DX12::CAMERA mainCamera;

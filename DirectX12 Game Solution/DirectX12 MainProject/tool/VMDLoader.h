@@ -4,34 +4,12 @@
 
 #pragma once
 
-#include "Base/pch.h"
-#include "Base/dxtk.h"
+#include "PmxStructList.h"
 
 using Microsoft::WRL::ComPtr;
 using std::unique_ptr;
 using std::make_unique;
 using namespace DirectX;
-
-struct VMDData {
-	wchar_t name[16];
-	unsigned int frame_no;
-	XMFLOAT3     location;
-	XMFLOAT4     quaternion;
-	BYTE         bezier[64];
-};
-
-
-struct VMDKeyFrame {
-	unsigned int frame_no;
-	XMVECTOR     quaternion;
-	XMFLOAT2     p1;
-	XMFLOAT2     p2;
-
-	VMDKeyFrame(const unsigned int frame, const XMVECTOR& qt, const XMFLOAT2& pt1, const XMFLOAT2& pt2)
-		: frame_no(frame), quaternion(qt), p1(pt1), p2(pt2)
-	{}
-};
-
 
 
 class VMDLoader{
@@ -48,8 +26,15 @@ public:
 	std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> LoadVMD(const char*);
 	std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> GetData() { return motionData; }
 	unsigned int GetVMDFrame() { return maxFrame; }
+	void Animetion();
+	void Initialize();
+	void Update();
 
 private:
+
+	void  MatrixMultiplyChildren(PmxData::BoneNode* node, const XMMATRIX& matrix);
+	void  UpdateBoneMatrices(const float deltaTime);
+	float GetYFromXOnBezier(const float x, const XMFLOAT2& a, const XMFLOAT2& b, const uint8_t n);
 
 	unsigned int maxFrame;
 	std::vector<VMDData> data;

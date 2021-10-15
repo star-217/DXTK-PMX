@@ -48,6 +48,9 @@
     <ClInclude Include="tool\VMDLoader.h">
       <Filter>Base\Pmx</Filter>
     </ClInclude>
+    <ClInclude Include="tool\PmxStructList.h">
+      <Filter>Base\Pmx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\Main.cpp">

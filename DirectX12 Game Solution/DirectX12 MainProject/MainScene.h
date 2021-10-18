@@ -6,6 +6,7 @@
 
 #include "Scene.h"
 #include "tool/PmxLoader.h"
+#include "tool/VMDLoader.h"
 
 
 using Microsoft::WRL::ComPtr;
@@ -45,7 +46,7 @@ private:
 	PmxLoader reimu;
 	PmxLoader back;
 
-	//VMDLoader vmdLoad;
+	VMDLoader vmdLoad;
 
 	DX12::SPRITE chara;
 	DX12::CAMERA mainCamera;

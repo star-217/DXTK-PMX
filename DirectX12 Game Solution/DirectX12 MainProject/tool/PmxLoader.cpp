@@ -121,6 +121,11 @@ void PmxLoader::SetRotation(Vector3 rotation = Vector3(0, 0, 0))
 	);
 }
 
+void PmxLoader::Animetion(float deltaTime)
+{
+	m_vmd.Update(deltaTime);
+}
+
 /**
  * @brief ヘッダーを読み込む
  * @param fp ファイルデータ
@@ -456,7 +461,7 @@ void PmxLoader::SetUp()
 	ExportTexture();
 	SetShader();
 	CreatePipeLine();
-
+	m_vmd.Initialize(m_data, m_constantBuffer,"");
 
 }
 

@@ -1,5 +1,5 @@
 /**
- * @file VMDLoader.h
+ * @file VMDLoader.cpp
  * @brief VMD読み込み
  * @author hoshi hirofumi
  * @date 2021/10/11
@@ -15,7 +15,7 @@
 #include <codecvt>
 
 // Initialize member variables.
-VMDLoader::VMDLoader()
+VMDLoader::VMDLoader(): elapsedTime(),motionFPS(30)
 {
 
 }
@@ -70,72 +70,76 @@ std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> VMDLoader::LoadVMD(co
 	return motionData;
 }
 
-void VMDLoader::Initialize()
+/**
+ * @brief VMDファイルを読み込む
+ * @param name ファイル名
+ * @return アニメーションデータ
+*/
+void VMDLoader::Initialize(PmxData data, ComPtr<ID3D12Resource> constantBuffer,const char* name)
 {
-	//data.boneMatrices.resize(data.bones.size());
-//std::fill(data.boneMatrices.begin(), data.boneMatrices.end(), XMMatrixIdentity());
-//data.motionData = vmdLoad.LoadVMD("Motion/IA_Conqueror_light_version.vmd");
-//data.maxFrame = vmdLoad.GetVMDFrame();
+	m_pmxData = data;
+	m_constantBuffer = constantBuffer;
+	boneMatrices.resize(data.bones.size());
+	std::fill(boneMatrices.begin(), boneMatrices.end(), XMMatrixIdentity());
+	motionData = LoadVMD("Motion/IA_Conqueror_light_version.vmd");
 
+	 //トランスフォーム行列
+	m_constantBuffer->Map(0, nullptr, (void**)&constantBufferPrt);
 
-// トランスフォーム行列
-//constantBuffer->Map(0, nullptr, (void**)&constantBufferPrt);
-//motionData = data.motionData;
+	for (auto& bonemotion : motionData) {
+		const auto& node = m_pmxData.boneNodeTable[bonemotion.first];
+		const auto& pos = node.startPos;
+		const auto  transform =
+			XMMatrixTranslation(-pos.x, -pos.y, -pos.z)
+			* XMMatrixRotationQuaternion(bonemotion.second[0].quaternion)
+			* XMMatrixTranslation(pos.x, pos.y, pos.z);
+		boneMatrices[node.boneIndex] = transform;
+	}
+	MatrixMultiplyChildren(&m_pmxData.boneNodeTable[L"センター"], SimpleMath::Matrix::Identity);
 
-//for (auto& bonemotion : motionData) {
-//	const auto& node = data.boneNodeTable[bonemotion.first];
-//	const auto& pos = node.startPos;
-//	const auto  transform =
-//		XMMatrixTranslation(-pos.x, -pos.y, -pos.z)
-//		* XMMatrixRotationQuaternion(bonemotion.second[0].quaternion)
-//		* XMMatrixTranslation(pos.x, pos.y, pos.z);
-//	data.boneMatrices[node.boneIndex] = transform;
-//}
-//MatrixMultiplyChildren(&data.boneNodeTable[L"センター"], SimpleMath::Matrix::Identity);
-
-//CopyMemory(constantBufferPrt + 1, data.boneMatrices.data(), sizeof(XMMATRIX) * data.boneMatrices.size());
+	CopyMemory(constantBufferPrt + 1, boneMatrices.data(), sizeof(XMMATRIX) * boneMatrices.size());
 }
 
-void VMDLoader::Update()
+void VMDLoader::Update(float deltaTime)
 {
-	/*UpdateBoneMatrices(deltaTime);
-auto& left_node = data.boneNodeTable[L"右足"];
-const auto& left_pos = left_node.startPos;
-const auto  left_transform =
-	XMMatrixTranslation(-left_pos.x, -left_pos.y, -left_pos.z)
-	* XMMatrixRotationX(XMConvertToRadians(leftArmAngle * deltaTime))
-	* XMMatrixTranslation(left_pos.x, left_pos.y, left_pos.z);
-data.boneMatrices[left_node.boneIndex] *= left_transform;
+	UpdateBoneMatrices(deltaTime);
+	auto& left_node = m_pmxData.boneNodeTable[L"右足"];
+	const auto& left_pos = left_node.startPos;
+	const auto  left_transform =
+		XMMatrixTranslation(-left_pos.x, -left_pos.y, -left_pos.z)
+		* XMMatrixRotationX(XMConvertToRadians(0))
+		* XMMatrixTranslation(left_pos.x, left_pos.y, left_pos.z);
+	boneMatrices[left_node.boneIndex] *= left_transform;
 
-constantBuffer->Map(0, nullptr, (void**)&constantBufferPrt);
+	m_constantBuffer->Map(0, nullptr, (void**)&constantBufferPrt);
 
-MatrixMultiplyChildren(&data.boneNodeTable[L"センター"], SimpleMath::Matrix::Identity);
-CopyMemory(constantBufferPrt + 1, data.boneMatrices.data(), sizeof(XMMATRIX) * data.boneMatrices.size());*/
+	MatrixMultiplyChildren(&m_pmxData.boneNodeTable[L"センター"], SimpleMath::Matrix::Identity);
+	CopyMemory(constantBufferPrt + 1, boneMatrices.data(), sizeof(XMMATRIX) * boneMatrices.size());
 }
 
 void VMDLoader::MatrixMultiplyChildren(PmxData::BoneNode* node, const XMMATRIX& matrix)
 {
-	/*data.boneMatrices[node->boneIndex] *= matrix;
+	boneMatrices[node->boneIndex] *= matrix;
 	for (auto& children : node->children) {
-		MatrixMultiplyChildren(children, data.boneMatrices[node->boneIndex]);
-	}*/
+		MatrixMultiplyChildren(children, boneMatrices[node->boneIndex]);
+	}
 }
 
 void VMDLoader::UpdateBoneMatrices(const float deltaTime)
 {
-	/*elapsedTime += deltaTime;
+	elapsedTime += deltaTime;
 
 
-	const float MAX_TIME = data.maxFrame / motionFPS;
+	const float MAX_TIME = maxFrame / motionFPS;
 	if (elapsedTime > MAX_TIME) {
 		elapsedTime -= MAX_TIME;
 	}
 
 	const unsigned int FRAME_NO = static_cast<int>(motionFPS * elapsedTime);
 
-	std::fill(data.boneMatrices.begin(), data.boneMatrices.end(), SimpleMath::Matrix::Identity);*/
-	/*for (const auto& motion : motionData) {
-		auto& node =data.boneNodeTable[motion.first];
+	std::fill(boneMatrices.begin(), boneMatrices.end(), SimpleMath::Matrix::Identity);
+	for (const auto& motion : motionData) {
+		auto& node = m_pmxData.boneNodeTable[motion.first];
 
 		const auto& keyframes = motion.second;
 		auto rit = std::find_if(
@@ -144,9 +148,9 @@ void VMDLoader::UpdateBoneMatrices(const float deltaTime)
 			{
 				return keyFrame.frame_no <= FRAME_NO;
 			}
-		);*/
+		);
 
-		/*if (rit == keyframes.rend())
+		if (rit == keyframes.rend())
 			continue;
 
 		XMMATRIX rotation;
@@ -169,8 +173,8 @@ void VMDLoader::UpdateBoneMatrices(const float deltaTime)
 			XMMatrixTranslation(-pos.x, -pos.y, -pos.z)
 			* rotation
 			* XMMatrixTranslation(pos.x, pos.y, pos.z);
-		data.boneMatrices[node.boneIndex] = transform;
-	}*/
+		boneMatrices[node.boneIndex] = transform;
+	}
 }
 
 float VMDLoader::GetYFromXOnBezier(const float x, const XMFLOAT2& a, const XMFLOAT2& b, const uint8_t n)

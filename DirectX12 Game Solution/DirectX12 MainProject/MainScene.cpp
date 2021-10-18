@@ -31,6 +31,7 @@ void MainScene::Initialize()
 	leftArmAngle = 0;
 	elapsedTime = 0;
 	motionFPS = 90;
+
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
@@ -74,7 +75,7 @@ void MainScene::OnRestartSound()
 // Updates the scene.
 NextScene MainScene::Update(const float deltaTime)
 {
-
+	reimu.Animetion(deltaTime);
 
 	//if (DXTK->KeyState->Z)
 	//	rotation.x += 1;

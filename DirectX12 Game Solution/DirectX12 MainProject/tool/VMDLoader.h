@@ -1,6 +1,9 @@
-//
-// TemplateScene.h
-//
+/**
+ * @file VMDLoader.h
+ * @brief VMDì«Ç›çûÇ›
+ * @author hoshi hirofumi
+ * @date 2021/10/11
+ */
 
 #pragma once
 
@@ -26,9 +29,8 @@ public:
 	std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> LoadVMD(const char*);
 	std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> GetData() { return motionData; }
 	unsigned int GetVMDFrame() { return maxFrame; }
-	void Animetion();
-	void Initialize();
-	void Update();
+	void Initialize(PmxData data, ComPtr<ID3D12Resource> constantBuffer, const char* name);
+	void Update(float deltaTime);
 
 private:
 
@@ -37,7 +39,15 @@ private:
 	float GetYFromXOnBezier(const float x, const XMFLOAT2& a, const XMFLOAT2& b, const uint8_t n);
 
 	unsigned int maxFrame;
+	float elapsedTime;
+	float motionFPS;
+
 	std::vector<VMDData> data;
 	std::unordered_map<std::wstring, std::vector<VMDKeyFrame>> motionData;
+
+	PmxData m_pmxData;
+	ComPtr<ID3D12Resource> m_constantBuffer;
+	XMMATRIX* constantBufferPrt;
+	std::vector<SimpleMath::Matrix> boneMatrices;
 
 };

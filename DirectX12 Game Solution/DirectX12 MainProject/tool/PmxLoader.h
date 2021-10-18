@@ -13,6 +13,7 @@
 -------------------------------------------------------------------------------------
 */
 #include "PmxStructList.h"
+#include "VMDLoader.h"
 
 /*
 -------------------------------------------------------------------------------------
@@ -49,6 +50,10 @@ public:
 	void SetPosition(Vector3 position);
 	void SetScale(Vector3 scale);
 	void SetRotation(Vector3 rotation);
+
+	//アニメーション
+	void AnimetionInitialize(const char* name);
+	void Animetion(float deltaTime);
 
 
 private:
@@ -109,5 +114,6 @@ private:
 	std::wstring m_ps;
 
 	PmxData m_data;
+	VMDLoader m_vmd;
 
 };

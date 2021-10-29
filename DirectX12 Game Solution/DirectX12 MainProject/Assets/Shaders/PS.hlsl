@@ -18,7 +18,7 @@ cbuffer Material : register(b1)
 
 float4 BasicPS(VSOUT vsout) : SV_TARGET
 {
-	float3 light = normalize(float3(1,-1,5));
+	float3 light = normalize(float3(1,-2,-10));
 	float brightness = max(dot(-light, vsout.normal), 0.0f);
 	brightness = min(brightness + 0.25f, 1.0f);
 

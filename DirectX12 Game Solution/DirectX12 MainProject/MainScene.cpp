@@ -42,6 +42,7 @@ void MainScene::LoadAssets()
 	bgm->Play();
 
 	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
+	reimu.SetRotation(Vector3(0, 180, 0));
 	reimu.SetCamera(mainCamera);
 	back.PmxRead("Model/Stage_ST43/ST43.pmx");
 	back.SetCamera(mainCamera);
@@ -76,16 +77,6 @@ void MainScene::OnRestartSound()
 NextScene MainScene::Update(const float deltaTime)
 {
 	reimu.Animetion(deltaTime);
-
-	//if (DXTK->KeyState->Z)
-	//	rotation.x += 1;
-	//if (DXTK->KeyState->X)
-	//	rotation.y += 2;
-	//if (DXTK->KeyState->C)
-	//	rotation.z += 1;
-
-
-
 
 	return NextScene::Continue;
 }

@@ -41,9 +41,10 @@ void MainScene::LoadAssets()
 	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
 	bgm->Play();
 
-	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
-	reimu.SetRotation(Vector3(0, 180, 0));
+	reimu.PmxRead("Model/Eunice211107NewM/Eunice13EL_Mf.pmx");
+	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);
+	back.SetShader(L"Shaders/VS2.hlsl", L"Shaders/PS2.hlsl");
 	back.PmxRead("Model/Stage_ST43/ST43.pmx");
 	back.SetCamera(mainCamera);
 
@@ -76,7 +77,7 @@ void MainScene::OnRestartSound()
 // Updates the scene.
 NextScene MainScene::Update(const float deltaTime)
 {
-	reimu.Animetion(deltaTime);
+	//reimu.Animetion(deltaTime);
 
 	return NextScene::Continue;
 }

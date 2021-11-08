@@ -46,13 +46,17 @@ public:
 
 	void PmxRead(const char*);
 	void Render();
+	void SetShader(LPCWSTR vs, LPCWSTR ps)
+	{
+		vsfileName = vs;
+		psfileName = ps;
+	};
 	void SetCamera(DX12::CAMERA camera);
 	void SetPosition(Vector3 position);
 	void SetScale(Vector3 scale);
 	void SetRotation(Vector3 rotation);
 
 	//アニメーション
-	void AnimetionInitialize(const char* name);
 	void Animetion(float deltaTime);
 
 
@@ -71,8 +75,8 @@ private:
 	void VertexBuffer(D3D12_HEAP_PROPERTIES, D3D12_RESOURCE_DESC);
 	void IndexBuffer(D3D12_HEAP_PROPERTIES, D3D12_RESOURCE_DESC);
 	void ConstantBuffer(D3D12_HEAP_PROPERTIES, D3D12_RESOURCE_DESC);
+	void InitShader();
 	void ExportTexture();
-	void SetShader();
 	void CreatePipeLine();
 	bool getPMXStringUTF16(FILE* _file, std::wstring& output);
 
@@ -115,5 +119,8 @@ private:
 
 	PmxData m_data;
 	VMDLoader m_vmd;
+
+	LPCWSTR vsfileName = L"Shaders/VS.hlsl";
+	LPCWSTR psfileName = L"Shaders/PS.hlsl";
 
 };

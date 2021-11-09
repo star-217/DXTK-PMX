@@ -24,7 +24,7 @@ VSOUT BasicVS(
 {
 
     VSOUT vsout;
-   // pos = mul(bones[boneno], pos);
+    pos = mul(bones[boneno], pos);
     vsout.svpos = mul(transform, pos);
     normal.w = 0;
     vsout.normal = mul(transform, normal);

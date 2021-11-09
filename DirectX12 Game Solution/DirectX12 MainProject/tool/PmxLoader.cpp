@@ -84,7 +84,6 @@ void PmxLoader::SetCamera(DX12::CAMERA camera)
 
 	XMMATRIX* map_buffer = nullptr;
 	m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
-	//*map_buffer = SimpleMath::Matrix::Identity;
 	*map_buffer = m_worldTransform * camera->GetViewProjectionMatrix();
 	m_constantBuffer->Unmap(0, nullptr);
 
@@ -461,7 +460,7 @@ void PmxLoader::SetUp()
 	ExportTexture();
 	InitShader();
 	CreatePipeLine();
-	//m_vmd.Initialize(m_data, m_constantBuffer,"");
+	//m_vmd.Initialize(m_data, m_constantBuffer,"Motion/IA_Conqueror_light_version.vmd");
 
 }
 

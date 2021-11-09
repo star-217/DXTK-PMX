@@ -81,7 +81,7 @@ void VMDLoader::Initialize(PmxData data, ComPtr<ID3D12Resource> constantBuffer,c
 	m_constantBuffer = constantBuffer;
 	boneMatrices.resize(data.bones.size());
 	std::fill(boneMatrices.begin(), boneMatrices.end(), XMMatrixIdentity());
-	motionData = LoadVMD("Motion/IA_Conqueror_light_version.vmd");
+	motionData = LoadVMD(name);
 
 	 //トランスフォーム行列
 	m_constantBuffer->Map(0, nullptr, (void**)&constantBufferPrt);

@@ -47,6 +47,18 @@ void PmxLoader::PmxRead(const char* fileName)
 	SetUp();
 }
 
+void PmxLoader::Update()
+{
+	m_worldTransform = m_scale * m_rotation * m_position;
+
+	VSOUT* map_buffer = nullptr;
+	m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
+	map_buffer->world = m_worldTransform;
+	map_buffer->view = m_camera->GetViewMatrix();
+	map_buffer->proj = m_camera->GetProjectionMatrix();
+	m_constantBuffer->Unmap(0, nullptr);
+}
+
 /**
 	@brief	•`‰æ
 */
@@ -81,10 +93,13 @@ void PmxLoader::SetCamera(DX12::CAMERA camera)
 {
 
 	m_worldTransform = m_scale * m_rotation * m_position;
+	m_camera = camera;
 
-	XMMATRIX* map_buffer = nullptr;
+	VSOUT* map_buffer = nullptr;
 	m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
-	*map_buffer = m_worldTransform * camera->GetViewProjectionMatrix();
+	map_buffer->world = m_worldTransform;
+	map_buffer->view = m_camera->GetViewMatrix();
+	map_buffer->proj = m_camera->GetProjectionMatrix();
 	m_constantBuffer->Unmap(0, nullptr);
 
 }
@@ -574,10 +589,12 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	}
 
 	// ConstantBuffer‚Ö‚Ì‘‚«ž‚Ý
-	VSOUT* map_buffer = nullptr;
-	m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
-	map_buffer->transform = m_worldTransform * Matrix::CreateTranslation(0, 0, 0);
-	m_constantBuffer->Unmap(0, nullptr);
+	//VSOUT* map_buffer = nullptr;
+	//m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
+	//map_buffer->world = m_worldTransform;
+	//map_buffer->view = m_camera->GetViewMatrix();
+	//map_buffer->proj = m_camera->GetProjectionMatrix();
+	//m_constantBuffer->Unmap(0, nullptr);
 
 	PmxData::MaterialForHlsl* mapMaterial = nullptr;
 	m_materialBuffer->Map(0, nullptr, (void**)&mapMaterial);
@@ -804,5 +821,15 @@ bool PmxLoader::getPMXStringUTF16(FILE* file, std::wstring& output)
 		output.replace(i, 1, L"/");
 
 	return true;
+}
+
+void PmxLoader::ToonTexture()
+{
+
+}
+
+std::string PmxLoader::GetExtension(const std::string& path)
+{
+	return std::string();
 }
 

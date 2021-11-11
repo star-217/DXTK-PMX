@@ -190,10 +190,10 @@ struct PmxData {
 // シェーダーデータ
 struct VSOUT
 {
-	XMMATRIX transform;			//モデル
+	XMMATRIX world;				//モデル
+	XMMATRIX view;
+	XMMATRIX proj;
 	XMMATRIX bone[512];			//ボーン
-	XMFLOAT4 materialEmissive;
-	XMFLOAT4 diffuse;
 };
 
 struct VMDData {

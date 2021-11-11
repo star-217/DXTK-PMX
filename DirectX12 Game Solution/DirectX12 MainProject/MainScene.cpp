@@ -28,10 +28,7 @@ void MainScene::Initialize()
 		1.0f, 10000.0f
 	);
 
-	leftArmAngle = 0;
-	elapsedTime = 0;
-	motionFPS = 90;
-
+	rote = Vector3(0, 0, 0);
 }
 
 // Allocate all memory the Direct3D and Direct2D resources.
@@ -41,10 +38,10 @@ void MainScene::LoadAssets()
 	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
 	bgm->Play();
 
-	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
+	reimu.PmxRead("Model/”h–Ö/”h–Ö.pmx");
 	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);
-	back.SetShader(L"Shaders/VS2.hlsl", L"Shaders/PS2.hlsl");
+
 	back.PmxRead("Model/Stage_ST43/ST43.pmx");
 	back.SetCamera(mainCamera);
 
@@ -78,6 +75,13 @@ void MainScene::OnRestartSound()
 NextScene MainScene::Update(const float deltaTime)
 {
 	//reimu.Animetion(deltaTime);
+	reimu.Update();
+	if (DXTK->KeyState->D)
+	{
+		rote.y += 1.0f;
+		reimu.SetRotation(rote);
+	}
+
 
 	return NextScene::Continue;
 }

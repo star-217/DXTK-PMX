@@ -2,13 +2,14 @@ struct VSOUT
 {
     float4 svpos : SV_POSITION;
     float4 normal: NORMAL;
-    //float4 color : COLORD;
     float2 uv    : TEXCOORD;
 };
 
 cbuffer cbuff:register(b0) {
 
-    matrix transform;
+    matrix world;
+    matrix view;
+    matrix proj;
     matrix bones[512];
 }
 
@@ -24,10 +25,12 @@ VSOUT BasicVS(
 {
 
     VSOUT vsout;
-    pos = mul(bones[boneno], pos);
-    vsout.svpos = mul(transform, pos);
-    normal.w = 0;
-    vsout.normal = mul(transform, normal);
+    //pos = mul(bones[boneno], pos);
+    vsout.svpos = mul(world, pos);
+    vsout.svpos = mul(view, vsout.svpos);
+    vsout.svpos = mul(proj, vsout.svpos);
+
+    vsout.normal = mul(world, normal);
     vsout.uv = uv;
 
     return vsout;

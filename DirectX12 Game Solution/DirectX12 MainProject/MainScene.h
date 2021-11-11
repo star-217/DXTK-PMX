@@ -52,5 +52,6 @@ private:
 	DX12::CAMERA mainCamera;
 
 	DX9::MEDIARENDERER bgm;
+	Vector3 rote;
 
 };

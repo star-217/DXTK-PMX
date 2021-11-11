@@ -18,9 +18,9 @@ cbuffer Material : register(b1)
 
 float4 BasicPS(VSOUT vsout) : SV_TARGET
 {
-	float3 light = normalize(float3(1,-2,-10));
+	float3 light = normalize(float3(1,-1,1));
 	float brightness = max(dot(-light, vsout.normal), 0.0f);
 	brightness = min(brightness + 0.25f, 1.0f);
 
-	return float4(brightness, brightness, brightness, 1.0f) /** diffuse*/ * tex.Sample(samp, vsout.uv);
+	return float4(brightness, brightness, brightness, 1.0f) * tex.Sample(samp, vsout.uv);
 }

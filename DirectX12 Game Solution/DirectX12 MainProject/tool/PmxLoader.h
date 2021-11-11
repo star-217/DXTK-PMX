@@ -45,6 +45,7 @@ public:
 	PmxLoader& operator= (PmxLoader const&) = delete;
 
 	void PmxRead(const char*);
+	void Update();
 	void Render();
 	void SetShader(LPCWSTR vs, LPCWSTR ps)
 	{
@@ -78,7 +79,10 @@ private:
 	void InitShader();
 	void ExportTexture();
 	void CreatePipeLine();
+
 	bool getPMXStringUTF16(FILE* _file, std::wstring& output);
+	void ToonTexture();
+	std::string GetExtension(const std::string& path);
 
 	//! 頂点バッファー　ビュー
 	ComPtr<ID3D12Resource>		m_vertexBuffer;
@@ -122,5 +126,7 @@ private:
 
 	LPCWSTR vsfileName = L"Shaders/VS.hlsl";
 	LPCWSTR psfileName = L"Shaders/PS.hlsl";
+
+	DX12::CAMERA m_camera;
 
 };

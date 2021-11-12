@@ -38,7 +38,9 @@ void MainScene::LoadAssets()
 	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
 	bgm->Play();
 
-	reimu.PmxRead("Model/‰·çŒ/‰·çŒ.pmx");
+	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
+	pos = Vector3(0, 3, 0);
+	reimu.SetPosition(pos);
 	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);
 
@@ -77,13 +79,26 @@ NextScene MainScene::Update(const float deltaTime)
 	//reimu.Animetion(deltaTime);
 	reimu.Update();
 	if (DXTK->KeyState->D)
-	{
 		rote.y += 1.0f;
-		reimu.SetRotation(rote);
-	}
+	if (DXTK->KeyState->D)
+		rote.y += 1.0f;
+	if (DXTK->KeyState->W)
+		pos.y += 1.0f;
+	if (DXTK->KeyState->S)
+		pos.y -= 1.0f;
 
+	if (DXTK->KeyState->Right)
+		pos.x += 1.0f;
+	if (DXTK->KeyState->Left)
+		pos.x -= 1.0f;
+	if (DXTK->KeyState->Up)
+		pos.z -= 1.0f;
+	if (DXTK->KeyState->Down)
+		pos.z += 1.0f;
 
-	return NextScene::Continue;
+	reimu.SetRotation(rote);
+	reimu.SetPosition(pos);
+	reimu.SetCamera(mainCamera);	return NextScene::Continue;
 }
 
 // Draws the scene.

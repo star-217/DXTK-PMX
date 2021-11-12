@@ -53,5 +53,5 @@ private:
 
 	DX9::MEDIARENDERER bgm;
 	Vector3 rote;
-
+	Vector3 pos;
 };

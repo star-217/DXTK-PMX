@@ -78,7 +78,7 @@ void PmxLoader::Render()
 	DXTK->CommandList->SetGraphicsRootDescriptorTable(0, m_resourceDescriptors->GetGpuHandle(0));
 	DXTK->CommandList->SetDescriptorHeaps(1, &heapes[1]);
 	for (int i = 0; i < m_data.material.size(); ++i) {
-		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 2));
+		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 3));
 		DXTK->CommandList->DrawIndexedInstanced(m_data.materials[i].indicesNum, 1, idx0ffset, 0, 0);
 		idx0ffset += m_data.materials[i].indicesNum;
 	}
@@ -451,7 +451,7 @@ void PmxLoader::SetUp()
 {
 
 	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
-	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 2);
+	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 3);
 
 	D3D12_HEAP_PROPERTIES heapprop = {};
 	heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -583,7 +583,7 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	cbv_desc.SizeInBytes = (UINT)m_materialBuffer->GetDesc().Width;
 
 	for (int i = 0; i < m_data.numMaterial; i++) {
-		desc_addr = m_materialDescriptors->GetCpuHandle(i * 2);
+		desc_addr = m_materialDescriptors->GetCpuHandle(i * 3);
 
 		DXTK->Device->CreateConstantBufferView(&cbv_desc, desc_addr);
 	}
@@ -613,7 +613,7 @@ void PmxLoader::ExportTexture()
 	resourceUpload.Begin();
 
 	//テクスチャ書き出し
-	m_texture.resize(m_data.numMaterial);
+	m_texture.resize(m_data.numMaterial + 128);
 	std::wstring texture_data[256] = {};
 	for (int i = 0; i < m_data.numTexture + 1; i++) {
 		if (i == m_data.numTexture)
@@ -626,14 +626,27 @@ void PmxLoader::ExportTexture()
 		texture_data[i] = textureName.c_str();
 	}
 
+	char toonName[128];
+	wchar_t fileName[16];
+
 	//テクスチャをデスクリプターヒープに書き出す
 	for (int i = 0; i < m_data.numMaterial; i++) {
 		if (m_data.material[i].colorMapTextureIndex == 255) {
 			m_data.material[i].colorMapTextureIndex = 255;
 		}
 		auto textureName = texture_data[m_data.material[i].colorMapTextureIndex];
-		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 2 + 1, m_texture[i].ReleaseAndGetAddressOf());
+		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 1, m_texture[i].ReleaseAndGetAddressOf());
+
+		sprintf(toonName, "toon%02d.bmp", m_data.material[i].toonTextureIndex);
+
+		MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, toonName, -1, fileName, sizeof(fileName));
+
+		std::wstring s = L"Model/toon/";
+		s.append(fileName);
+
+		DX12::CreateTextureSRV(DXTK->Device, s.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 2, m_texture[i + m_data.numTexture].ReleaseAndGetAddressOf());
 	}
+
 	auto uploadResourcesFinished = resourceUpload.End(DXTK->CommandQueue);
 	uploadResourcesFinished.wait();
 }
@@ -685,7 +698,7 @@ void PmxLoader::CreatePipeLine()
 	descRange[1].BaseShaderRegister = 1;
 	descRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descRange[2].NumDescriptors = 1;
+	descRange[2].NumDescriptors = 2;
 	descRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descRange[2].BaseShaderRegister = 0;
 	descRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -704,23 +717,29 @@ void PmxLoader::CreatePipeLine()
 	rootparam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	//サンプラー
-	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
-	samplerDesc.Filter = D3D12_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.MinLOD = 0.0f;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	D3D12_STATIC_SAMPLER_DESC samplerDesc[2] = {};
+	samplerDesc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc[0].BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+	samplerDesc[0].Filter = D3D12_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT;
+	samplerDesc[0].MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc[0].MinLOD = 0.0f;
+	samplerDesc[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	samplerDesc[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	samplerDesc[1] = samplerDesc[0];
+	samplerDesc[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc[1].ShaderRegister = 1;
 
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	rootSignatureDesc.pParameters = rootparam;
 	rootSignatureDesc.NumParameters = 2;
-	rootSignatureDesc.pStaticSamplers = &samplerDesc;
-	rootSignatureDesc.NumStaticSamplers = 1;
+	rootSignatureDesc.pStaticSamplers = samplerDesc;
+	rootSignatureDesc.NumStaticSamplers = 2;
 
 	result = DirectX::CreateRootSignature(
 		DXTK->Device,

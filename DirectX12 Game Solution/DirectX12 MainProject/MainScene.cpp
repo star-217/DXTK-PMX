@@ -19,7 +19,7 @@ void MainScene::Initialize()
 {
 
 	mainCamera.SetView(
-		SimpleMath::Vector3(0, 10, -30),
+		SimpleMath::Vector3(0, 15, -50),
 		SimpleMath::Vector3(0, 0, 0)
 	);
 	mainCamera.SetPerspectiveFieldOfView(
@@ -44,7 +44,9 @@ void MainScene::LoadAssets()
 	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);
 
+	back.SetShader(L"Shaders/VS2.hlsl", L"Shaders/PS2.hlsl");
 	back.PmxRead("Model/Stage_ST43/ST43.pmx");
+	back.SetScale(Vector3(0.5f, 0.5f, 0.5f));
 	back.SetCamera(mainCamera);
 
 }

@@ -78,7 +78,7 @@ void PmxLoader::Render()
 	DXTK->CommandList->SetGraphicsRootDescriptorTable(0, m_resourceDescriptors->GetGpuHandle(0));
 	DXTK->CommandList->SetDescriptorHeaps(1, &heapes[1]);
 	for (int i = 0; i < m_data.material.size(); ++i) {
-		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 2));
+		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 3));
 		DXTK->CommandList->DrawIndexedInstanced(m_data.materials[i].indicesNum, 1, idx0ffset, 0, 0);
 		idx0ffset += m_data.materials[i].indicesNum;
 	}
@@ -451,7 +451,7 @@ void PmxLoader::SetUp()
 {
 
 	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
-	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 2);
+	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 3);
 
 	D3D12_HEAP_PROPERTIES heapprop = {};
 	heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -582,8 +582,18 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	cbv_desc.BufferLocation = m_materialBuffer->GetGPUVirtualAddress();
 	cbv_desc.SizeInBytes = (UINT)m_materialBuffer->GetDesc().Width;
 
+	auto materialSize = sizeof(PmxData::MaterialForHlsl);
+	materialSize = (materialSize + 0xff) & ~0xff;
+
+	PmxData::MaterialForHlsl* mapMaterial = nullptr;
+	m_materialBuffer->Map(0, nullptr, (void**)&mapMaterial);
+	for (int i = 0; i < m_data.numMaterial; ++i) {
+		mapMaterial[i] = m_data.shaderData[i];
+	}
+	m_materialBuffer->Unmap(0, nullptr);
+
 	for (int i = 0; i < m_data.numMaterial; i++) {
-		desc_addr = m_materialDescriptors->GetCpuHandle(i * 2);
+		desc_addr = m_materialDescriptors->GetCpuHandle(i * 3);
 
 		DXTK->Device->CreateConstantBufferView(&cbv_desc, desc_addr);
 	}
@@ -595,13 +605,6 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	//map_buffer->view = m_camera->GetViewMatrix();
 	//map_buffer->proj = m_camera->GetProjectionMatrix();
 	//m_constantBuffer->Unmap(0, nullptr);
-
-	PmxData::MaterialForHlsl* mapMaterial = nullptr;
-	m_materialBuffer->Map(0, nullptr, (void**)&mapMaterial);
-	for (int i = 0; i < m_data.numMaterial; ++i) {
-		mapMaterial[i] = m_data.shaderData[i];
-	}
-	m_materialBuffer->Unmap(0, nullptr);
 }
 
 /**
@@ -614,11 +617,12 @@ void PmxLoader::ExportTexture()
 
 	//テクスチャ書き出し
 	m_texture.resize(m_data.numMaterial);
+	m_sphTexture.resize(m_data.numMaterial);
 	std::wstring texture_data[256] = {};
 	for (int i = 0; i < m_data.numTexture + 1; i++) {
 		if (i == m_data.numTexture)
 		{
-			std::wstring textureName = L"Model/white.png";
+			std::wstring textureName = L"Model/white.bmp";
 			texture_data[255] = textureName.c_str();
 			break;
 		}
@@ -628,12 +632,15 @@ void PmxLoader::ExportTexture()
 
 	//テクスチャをデスクリプターヒープに書き出す
 	for (int i = 0; i < m_data.numMaterial; i++) {
-		if (m_data.material[i].colorMapTextureIndex == 255) {
-			m_data.material[i].colorMapTextureIndex = 255;
-		}
+
 		auto textureName = texture_data[m_data.material[i].colorMapTextureIndex];
-		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 2 + 1, m_texture[i].ReleaseAndGetAddressOf());
+		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 1, m_texture[i].ReleaseAndGetAddressOf());
+
+		auto sphName = texture_data[m_data.material[i].mapTextureIndex];
+		DX12::CreateTextureSRV(DXTK->Device, sphName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 2, m_sphTexture[i].ReleaseAndGetAddressOf());
 	}
+
+
 	auto uploadResourcesFinished = resourceUpload.End(DXTK->CommandQueue);
 	uploadResourcesFinished.wait();
 }
@@ -685,7 +692,7 @@ void PmxLoader::CreatePipeLine()
 	descRange[1].BaseShaderRegister = 1;
 	descRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descRange[2].NumDescriptors = 1;
+	descRange[2].NumDescriptors = 2;
 	descRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descRange[2].BaseShaderRegister = 0;
 	descRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;

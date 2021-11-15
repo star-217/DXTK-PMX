@@ -8,7 +8,9 @@ struct VSOUT
 
 cbuffer cbuff:register(b0) {
 
-    matrix transform;
+    matrix world;
+    matrix view;
+    matrix proj;
     matrix bones[512];
 }
 
@@ -24,9 +26,11 @@ VSOUT BasicVS(
 {
 
     VSOUT vsout;
-    vsout.svpos = mul(transform, pos);
-    normal.w = 0;
-    vsout.normal = mul(transform, normal);
+    vsout.svpos = mul(world, pos);
+    vsout.svpos = mul(view, vsout.svpos);
+    vsout.svpos = mul(proj, vsout.svpos);
+
+    vsout.normal = mul(world, normal);
     vsout.uv = uv;
 
     return vsout;

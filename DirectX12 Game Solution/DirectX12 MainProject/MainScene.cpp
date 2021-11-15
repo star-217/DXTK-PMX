@@ -43,6 +43,7 @@ void MainScene::LoadAssets()
 	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);
 
+	back.SetShader(L"Shaders/VS2.hlsl", L"Shaders/PS2.hlsl");
 	back.PmxRead("Model/Stage_ST43/ST43.pmx");
 	back.SetCamera(mainCamera);
 

@@ -21,11 +21,9 @@ cbuffer Material : register(b1)
 float4 BasicPS(VSOUT vsout) : SV_TARGET
 {
 	float3 light = normalize(float3(1,-1,1));
-	float diffuseB = saturate(dot(-light, vsout.normal));
-	float4 toonDif = toon.Sample(sampToon, float2(0, 1.0f - diffuseB));
-	//float brightness = max(dot(-light, vsout.normal), 0.0f);
-	//brightness = min(brightness + 0.25f, 1.0f);
+	float brightness = max(dot(-light, vsout.normal), 0.0f);
+	brightness = min(brightness + 0.25f, 1.0f);
 	float4 texColor = tex.Sample(samp, vsout.uv);
 
-	return max(saturate(toonDif * texColor),float4(texColor * ambient,1));
+	return float4(brightness, brightness, brightness,1) * diffuse * texColor;
 }

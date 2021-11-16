@@ -80,10 +80,10 @@ NextScene MainScene::Update(const float deltaTime)
 {
 	//reimu.Animetion(deltaTime);
 	reimu.Update();
-	if (DXTK->KeyState->D)
+	if (DXTK->KeyState->A)
 		rote.y += 1.0f;
 	if (DXTK->KeyState->D)
-		rote.y += 1.0f;
+		rote.y -= 1.0f;
 	if (DXTK->KeyState->W)
 		pos.y += 1.0f;
 	if (DXTK->KeyState->S)

@@ -2,6 +2,7 @@ Texture2D<float4> tex  : register(t0);
 Texture2D<float4> sph  : register(t1);
 Texture2D<float4> toon : register(t2);
 SamplerState      samp : register(s0);
+SamplerState	  toonsamp : register(s1);
 
 struct VSOUT {
 	float4 svpos : SV_POSITION;
@@ -25,7 +26,7 @@ float4 BasicPS(VSOUT vsout) : SV_TARGET
 
 	float3 lightColor = float3(1, 1, 1);
 
-	float diffuseB = dot(-light, vsout.normal);
+	float diffuseB = saturate(dot(-light, vsout.normal));
 
 	float brightness = max(dot(-light, vsout.normal), 0.0f);
 	brightness = min(brightness + 0.25f, 1.0f);
@@ -33,13 +34,14 @@ float4 BasicPS(VSOUT vsout) : SV_TARGET
 	float2 sphereMapUV = vsout.vnormal.xy;
 	float4 texColor = tex.Sample(samp, vsout.uv);
 
-	float3 refLight = normalize(reflect(light, vsout.normal.xyz));
-	float  specularB = pow(saturate(dot(refLight, -vsout.ray)), specular.a);
+	//float3 refLight = normalize(reflect(light, vsout.normal.xyz));
+	//float  specularB = pow(saturate(dot(refLight, -vsout.ray)), specular.a);
 
+	float4 toonDif = toon.Sample(toonsamp, float2(0, 1.0 - diffuseB));
 
-	return	float4(brightness, brightness, brightness,1)
+	return	saturate(
+			toonDif
 			* diffuse
 			* texColor
-			* sph.Sample(samp, sphereMapUV)
-			;
+			* sph.Sample(samp, sphereMapUV));
 }

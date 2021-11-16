@@ -56,6 +56,7 @@ void PmxLoader::Update()
 	map_buffer->world = m_worldTransform;
 	map_buffer->view = m_camera->GetViewMatrix();
 	map_buffer->proj = m_camera->GetProjectionMatrix();
+	map_buffer->eye = m_camera->GetForwardVector();
 	m_constantBuffer->Unmap(0, nullptr);
 }
 
@@ -100,6 +101,7 @@ void PmxLoader::SetCamera(DX12::CAMERA camera)
 	map_buffer->world = m_worldTransform;
 	map_buffer->view = m_camera->GetViewMatrix();
 	map_buffer->proj = m_camera->GetProjectionMatrix();
+	map_buffer->eye = m_camera->GetForwardVector();
 	m_constantBuffer->Unmap(0, nullptr);
 
 }
@@ -303,16 +305,14 @@ void PmxLoader::Material(FILE* fp)
 		fread(&m_data.material[i].colorMapTextureIndex, m_data.textureIndex, 1, fp);
 		fread(&m_data.material[i].mapTextureIndex, m_data.textureIndex, 1, fp);
 
-		byte sphereMode;
-		fread(&sphereMode, 1, 1, fp);
-		byte toonFlag;
-		fread(&toonFlag, 1, 1, fp);
+		fread(&m_data.material[i].sphereMode, 1, 1, fp);
 
-		if (toonFlag)
-			fread(&m_data.material[i].toonTextureIndex, m_data.textureIndex, 1, fp);
+		fread(&m_data.material[i].toonFlag, 1, 1, fp);
+
+		if (m_data.material[i].toonFlag)
+			fread(&m_data.material[i].toonTextureIndex, 1, 1, fp);
 		else {
-			byte toonTexture;
-			fread(&toonTexture, 1, 1, fp);
+			fread(&m_data.material[i].toonTexture, m_data.textureIndex, 1, fp);
 		}
 		int memo;
 		fread(&memo, 4, 1, fp);
@@ -618,26 +618,51 @@ void PmxLoader::ExportTexture()
 	//テクスチャ書き出し
 	m_texture.resize(m_data.numMaterial);
 	m_sphTexture.resize(m_data.numMaterial);
-	std::wstring texture_data[256] = {};
+	m_toonTexture.resize(m_data.numMaterial);
+	std::wstring textureData[256] = {};
 	for (int i = 0; i < m_data.numTexture + 1; i++) {
 		if (i == m_data.numTexture)
 		{
 			std::wstring textureName = L"Model/white.bmp";
-			texture_data[255] = textureName.c_str();
+			textureData[255] = textureName.c_str();
 			break;
 		}
 		auto textureName = m_ps + m_data.texturePaths[i];
-		texture_data[i] = textureName.c_str();
+		textureData[i] = textureName.c_str();
+	}
+
+	std::wstring toonTextureData[10];
+	for (int i = 1; i < 11; i++)
+	{
+		if (i == 10)
+		{
+			std::wstring n = L"Model/toon/toon10.bmp";
+			toonTextureData[i-1] = n;
+			break;
+		}
+
+		std::wstring textureName = L"Model/toon/toon0";
+
+		textureName.append(std::to_wstring(i));
+		textureName.append(L".bmp");
+
+		toonTextureData[i-1] = textureName;
 	}
 
 	//テクスチャをデスクリプターヒープに書き出す
 	for (int i = 0; i < m_data.numMaterial; i++) {
 
-		auto textureName = texture_data[m_data.material[i].colorMapTextureIndex];
+		auto textureName = textureData[m_data.material[i].colorMapTextureIndex];
 		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 1, m_texture[i].ReleaseAndGetAddressOf());
 
-		auto sphName = texture_data[m_data.material[i].mapTextureIndex];
+		auto sphName = textureData[m_data.material[i].mapTextureIndex];
 		DX12::CreateTextureSRV(DXTK->Device, sphName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 2, m_sphTexture[i].ReleaseAndGetAddressOf());
+
+		auto toonName = toonTextureData[m_data.material[i].toonTextureIndex];
+		if (!m_data.material[i].toonFlag)
+			toonName = textureData[m_data.material[i].toonTexture];
+
+		//DX12::CreateTextureSRV(DXTK->Device, toonName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 4 + 3, m_toonTexture[i].ReleaseAndGetAddressOf());
 	}
 
 

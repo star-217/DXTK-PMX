@@ -87,9 +87,13 @@ struct PmxData {
 		XMFLOAT4 edgeColor;
 		float edgeSize;
 
+		byte sphereMode;
+		byte toonFlag;
+
 		int colorMapTextureIndex;
 		int mapTextureIndex;
 		int toonTextureIndex;
+		int toonTexture;
 
 		int vertexNum;
 	};
@@ -193,6 +197,7 @@ struct VSOUT
 	XMMATRIX world;				//ÉÇÉfÉã
 	XMMATRIX view;
 	XMMATRIX proj;
+	XMFLOAT3 eye;
 	XMMATRIX bone[512];			//É{Å[Éì
 };
 

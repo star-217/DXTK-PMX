@@ -2,6 +2,8 @@ struct VSOUT
 {
     float4 svpos : SV_POSITION;
     float4 normal: NORMAL;
+    float4 vnormal : NORMAL1;
+    float3 ray : VECTOR;
     float2 uv    : TEXCOORD;
 };
 
@@ -10,6 +12,7 @@ cbuffer cbuff:register(b0) {
     matrix world;
     matrix view;
     matrix proj;
+    float3 eye;
     matrix bones[512];
 }
 
@@ -31,6 +34,10 @@ VSOUT BasicVS(
     vsout.svpos = mul(proj, vsout.svpos);
 
     vsout.normal = mul(world, normal);
+    vsout.vnormal = mul(view, vsout.normal);
+
+    vsout.ray = normalize(pos.xyz - eye);
+
     vsout.uv = uv;
 
     return vsout;

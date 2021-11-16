@@ -108,6 +108,7 @@ private:
 	//! テクスチャリソース
 	std::vector<ComPtr<ID3D12Resource>>  m_texture;
 	std::vector<ComPtr<ID3D12Resource>>  m_sphTexture;
+	std::vector<ComPtr<ID3D12Resource>>  m_toonTexture;
 
 	SimpleMath::Matrix m_position;
 	SimpleMath::Matrix m_scale;

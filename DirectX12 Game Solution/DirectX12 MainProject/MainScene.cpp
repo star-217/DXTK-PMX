@@ -28,6 +28,7 @@ void MainScene::Initialize()
 		1.0f, 10000.0f
 	);
 
+	pos = Vector3(0, 3, 0);
 	rote = Vector3(0, 0, 0);
 }
 
@@ -38,8 +39,8 @@ void MainScene::LoadAssets()
 	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
 	bgm->Play();
 
+	reimu.SetShader(L"Shaders/VS2.hlsl", L"Shaders/PS2.hlsl");
 	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
-	pos = Vector3(0, 3, 0);
 	reimu.SetPosition(pos);
 	reimu.SetRotation(Vector3(0, 0, 0));
 	reimu.SetCamera(mainCamera);

@@ -56,7 +56,6 @@ void PmxLoader::Update()
 	map_buffer->world = m_worldTransform;
 	map_buffer->view = m_camera->GetViewMatrix();
 	map_buffer->proj = m_camera->GetProjectionMatrix();
-	map_buffer->eye = m_camera->GetForwardVector();
 	m_constantBuffer->Unmap(0, nullptr);
 }
 
@@ -79,7 +78,7 @@ void PmxLoader::Render()
 	DXTK->CommandList->SetGraphicsRootDescriptorTable(0, m_resourceDescriptors->GetGpuHandle(0));
 	DXTK->CommandList->SetDescriptorHeaps(1, &heapes[1]);
 	for (int i = 0; i < m_data.material.size(); ++i) {
-		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 3));
+		DXTK->CommandList->SetGraphicsRootDescriptorTable(1, m_materialDescriptors->GetGpuHandle(i * 2));
 		DXTK->CommandList->DrawIndexedInstanced(m_data.materials[i].indicesNum, 1, idx0ffset, 0, 0);
 		idx0ffset += m_data.materials[i].indicesNum;
 	}
@@ -101,7 +100,6 @@ void PmxLoader::SetCamera(DX12::CAMERA camera)
 	map_buffer->world = m_worldTransform;
 	map_buffer->view = m_camera->GetViewMatrix();
 	map_buffer->proj = m_camera->GetProjectionMatrix();
-	map_buffer->eye = m_camera->GetForwardVector();
 	m_constantBuffer->Unmap(0, nullptr);
 
 }
@@ -451,7 +449,7 @@ void PmxLoader::SetUp()
 {
 
 	m_resourceDescriptors = make_unique<DescriptorHeap>(DXTK->Device, 1);
-	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 3);
+	m_materialDescriptors = make_unique<DescriptorHeap>(DXTK->Device, m_data.numMaterial * 2);
 
 	D3D12_HEAP_PROPERTIES heapprop = {};
 	heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -593,18 +591,10 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	m_materialBuffer->Unmap(0, nullptr);
 
 	for (int i = 0; i < m_data.numMaterial; i++) {
-		desc_addr = m_materialDescriptors->GetCpuHandle(i * 3);
+		desc_addr = m_materialDescriptors->GetCpuHandle(i * 2);
 
 		DXTK->Device->CreateConstantBufferView(&cbv_desc, desc_addr);
 	}
-
-	// ConstantBuffer‚Ö‚Ì‘‚«ž‚Ý
-	//VSOUT* map_buffer = nullptr;
-	//m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
-	//map_buffer->world = m_worldTransform;
-	//map_buffer->view = m_camera->GetViewMatrix();
-	//map_buffer->proj = m_camera->GetProjectionMatrix();
-	//m_constantBuffer->Unmap(0, nullptr);
 }
 
 /**
@@ -653,16 +643,7 @@ void PmxLoader::ExportTexture()
 	for (int i = 0; i < m_data.numMaterial; i++) {
 
 		auto textureName = textureData[m_data.material[i].colorMapTextureIndex];
-		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 1, m_texture[i].ReleaseAndGetAddressOf());
-
-		auto sphName = textureData[m_data.material[i].mapTextureIndex];
-		DX12::CreateTextureSRV(DXTK->Device, sphName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 3 + 2, m_sphTexture[i].ReleaseAndGetAddressOf());
-
-		auto toonName = toonTextureData[m_data.material[i].toonTextureIndex];
-		if (!m_data.material[i].toonFlag)
-			toonName = textureData[m_data.material[i].toonTexture];
-
-		//DX12::CreateTextureSRV(DXTK->Device, toonName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 4 + 3, m_toonTexture[i].ReleaseAndGetAddressOf());
+		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 2 + 1, m_texture[i].ReleaseAndGetAddressOf());
 	}
 
 
@@ -717,7 +698,7 @@ void PmxLoader::CreatePipeLine()
 	descRange[1].BaseShaderRegister = 1;
 	descRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descRange[2].NumDescriptors = 2;
+	descRange[2].NumDescriptors = 1;
 	descRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descRange[2].BaseShaderRegister = 0;
 	descRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;

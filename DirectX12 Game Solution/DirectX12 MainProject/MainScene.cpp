@@ -38,7 +38,7 @@ void MainScene::LoadAssets()
 	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
 	bgm->Play();
 
-	reimu.PmxRead("Model/‚É‚ª‚à‚ñ®—ì–²/reimu.pmx");
+	reimu.PmxRead("Model/ƒ‹ƒJ/„‰¹ƒ‹ƒJ.pmx");
 	pos = Vector3(0, 3, 0);
 	reimu.SetPosition(pos);
 	reimu.SetRotation(Vector3(0, 0, 0));

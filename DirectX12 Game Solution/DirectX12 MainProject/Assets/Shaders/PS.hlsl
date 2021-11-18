@@ -15,8 +15,10 @@ struct VSOUT {
 
 cbuffer Material : register(b1)
 {
-	float4 diffuse;
-	float4 specular;
+	float3 diffuse;
+	float  alpha;
+	float3 specular;
+	float  pow;
 	float3 ambient;
 }
 
@@ -39,9 +41,9 @@ float4 BasicPS(VSOUT vsout) : SV_TARGET
 
 	float4 toonDif = toon.Sample(toonsamp, float2(0, 1.0 - diffuseB));
 
-	return	saturate(
+	return	float4(diffuse,1);/*saturate(
 			toonDif
 			* diffuse
 			* texColor
-			* sph.Sample(samp, sphereMapUV));
+			* sph.Sample(samp, sphereMapUV))*/;
 }

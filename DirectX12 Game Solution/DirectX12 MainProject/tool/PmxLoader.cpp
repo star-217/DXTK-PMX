@@ -559,8 +559,11 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	);
 	DX::ThrowIfFailed(result);
 
+
+	auto materialSize = sizeof(PmxData::MaterialForHlsl);
+	materialSize = (materialSize + 0xff) & ~0xff;
 	//
-	resdesc.Width = (sizeof(PmxData::MaterialForHlsl) + 0xff) & ~0xff;
+	resdesc.Width = materialSize * m_data.numMaterial;
 	result = DXTK->Device->CreateCommittedResource(
 		&heapprop,
 		D3D12_HEAP_FLAG_NONE,
@@ -582,13 +585,12 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 	cbv_desc.BufferLocation = m_materialBuffer->GetGPUVirtualAddress();
 	cbv_desc.SizeInBytes = (UINT)m_materialBuffer->GetDesc().Width;
 
-	auto materialSize = sizeof(PmxData::MaterialForHlsl);
-	materialSize = (materialSize + 0xff) & ~0xff;
 
-	PmxData::MaterialForHlsl* mapMaterial = nullptr;
+	char* mapMaterial = nullptr;
 	m_materialBuffer->Map(0, nullptr, (void**)&mapMaterial);
 	for (int i = 0; i < m_data.numMaterial; ++i) {
-		mapMaterial[i] = m_data.shaderData[i];
+		*((PmxData::MaterialForHlsl*)mapMaterial) = m_data.shaderData[i];
+		mapMaterial += materialSize;
 	}
 	m_materialBuffer->Unmap(0, nullptr);
 
@@ -598,13 +600,6 @@ void PmxLoader::ConstantBuffer(D3D12_HEAP_PROPERTIES heapprop, D3D12_RESOURCE_DE
 		DXTK->Device->CreateConstantBufferView(&cbv_desc, desc_addr);
 	}
 
-	// ConstantBuffer‚Ö‚Ì‘‚«ž‚Ý
-	//VSOUT* map_buffer = nullptr;
-	//m_constantBuffer->Map(0, nullptr, (void**)&map_buffer);
-	//map_buffer->world = m_worldTransform;
-	//map_buffer->view = m_camera->GetViewMatrix();
-	//map_buffer->proj = m_camera->GetProjectionMatrix();
-	//m_constantBuffer->Unmap(0, nullptr);
 }
 
 /**

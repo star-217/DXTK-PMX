@@ -81,8 +81,6 @@ private:
 	void CreatePipeLine();
 
 	bool getPMXStringUTF16(FILE* _file, std::wstring& output);
-	void ToonTexture();
-	std::string GetExtension(const std::string& path);
 
 	//! 頂点バッファー　ビュー
 	ComPtr<ID3D12Resource>		m_vertexBuffer;

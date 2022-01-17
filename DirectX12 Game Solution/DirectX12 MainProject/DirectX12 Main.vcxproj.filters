@@ -90,7 +90,4 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Assets\Shaders\VS.hlsl" />
-  </ItemGroup>
 </Project>

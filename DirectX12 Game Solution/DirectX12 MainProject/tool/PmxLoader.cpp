@@ -2,7 +2,7 @@
  * @file PmxLoader.cpp
  * @brief PMX読み込み＆描画
  * @author hoshi hirofumi
- * @date 2021/10/11
+ * @date 2021/12/14
  */
 
 #include "PmxLoader.h"
@@ -16,7 +16,7 @@
 
 PmxLoader::PmxLoader() : m_vertexBuffer(nullptr), m_vertexBufferView{},
 m_vsBlob(nullptr), m_psBlob(nullptr), m_rootSignature(nullptr), m_pipelineState(nullptr),
-m_indexBuffer(nullptr),m_constantBuffer(nullptr), m_materialBuffer(nullptr),
+m_indexBuffer(nullptr), m_constantBuffer(nullptr), m_materialBuffer(nullptr),
 m_texture(NULL), m_position(), m_scale(), m_rotation(), m_worldTransform(),
 m_resourceDescriptors(nullptr), m_materialDescriptors(nullptr), m_ps(), m_data{}
 {
@@ -607,10 +607,11 @@ void PmxLoader::ExportTexture()
 	ResourceUploadBatch resourceUpload(DXTK->Device);
 	resourceUpload.Begin();
 
-	//テクスチャ書き出し
 	m_texture.resize(m_data.numMaterial);
 	m_sphTexture.resize(m_data.numMaterial);
 	m_toonTexture.resize(m_data.numMaterial);
+
+	//通常テクスチャ名
 	std::wstring textureData[256] = {};
 	for (int i = 0; i < m_data.numTexture + 1; i++) {
 		if (i == m_data.numTexture)
@@ -622,7 +623,7 @@ void PmxLoader::ExportTexture()
 		auto textureName = m_ps + m_data.texturePaths[i];
 		textureData[i] = textureName.c_str();
 	}
-
+	//トゥーンテクスチャ名
 	std::wstring toonTextureData[10];
 	for (int i = 1; i < 11; i++)
 	{
@@ -632,7 +633,6 @@ void PmxLoader::ExportTexture()
 			toonTextureData[i-1] = n;
 			break;
 		}
-
 		std::wstring textureName = L"Model/toon/toon0";
 
 		textureName.append(std::to_wstring(i));
@@ -643,13 +643,13 @@ void PmxLoader::ExportTexture()
 
 	//テクスチャをデスクリプターヒープに書き出す
 	for (int i = 0; i < m_data.numMaterial; i++) {
-
+		//通常テクスチャ
 		auto textureName = textureData[m_data.material[i].colorMapTextureIndex];
 		DX12::CreateTextureSRV(DXTK->Device, textureName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 4 + 1, m_texture[i].ReleaseAndGetAddressOf());
-
+		//スフィアマップテクスチャ
 		auto sphName = textureData[m_data.material[i].mapTextureIndex];
 		DX12::CreateTextureSRV(DXTK->Device, sphName.c_str(), resourceUpload, m_materialDescriptors.get(), i * 4 + 2, m_sphTexture[i].ReleaseAndGetAddressOf());
-
+		//トゥーンマップテクスチャ
 		auto toonName = toonTextureData[m_data.material[i].toonTextureIndex];
 		if (!m_data.material[i].toonFlag)
 			toonName = textureData[m_data.material[i].toonTexture];
@@ -787,6 +787,7 @@ void PmxLoader::CreatePipeLine()
 
 	gpipeline.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
+	//シェーダーのセマンティクス宣言
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
 		{"POSITION",0, DXGI_FORMAT_R32G32B32_FLOAT,0, D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -843,15 +844,5 @@ bool PmxLoader::getPMXStringUTF16(FILE* file, std::wstring& output)
 		output.replace(i, 1, L"/");
 
 	return true;
-}
-
-void PmxLoader::ToonTexture()
-{
-
-}
-
-std::string PmxLoader::GetExtension(const std::string& path)
-{
-	return std::string();
 }
 

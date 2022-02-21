@@ -35,8 +35,8 @@ void MainScene::Initialize()
 void MainScene::LoadAssets()
 {
 
-	bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
-	bgm->Play();
+	//bgm = DX9::MediaRenderer::CreateFromFile(DXTK->Device9, L"conqurer.mp3");
+	//bgm->Play();
 
 	reimu.PmxRead("Model/‚É‚ª‚à‚ñŽ®—ì–²/reimu.pmx");
 	pos = Vector3(0, 3, 0);
